@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../domain/entities/login_credentials.dart';
+import '../../../attendance/presentation/bindings/scanner_binding.dart';
+import '../../../attendance/presentation/pages/attendance_scanner_page.dart';
 import '../../domain/usecases/login_usecase.dart';
 
 enum LoginStatus { initial, loading, success, failure }
@@ -24,43 +25,22 @@ class LoginController extends GetxController {
     status.value = LoginStatus.loading;
     message.value = '';
 
-    final credentials = LoginCredentials(
-      email: emailController.text.trim(),
-      password: passwordController.text,
+    // Simulate successful login - accept anything for now
+    status.value = LoginStatus.success;
+    message.value = 'Login successful.';
+    Get.snackbar(
+      'Success',
+      'Login completed successfully.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green.shade600,
+      colorText: Colors.white,
     );
 
-    if (!credentials.isValidEmail) {
-      status.value = LoginStatus.failure;
-      message.value = 'Please enter a valid email address.';
-      return;
-    }
-
-    if (!credentials.isValidPassword) {
-      status.value = LoginStatus.failure;
-      message.value = 'Password must be at least 6 characters.';
-      return;
-    }
-
-    try {
-      final success = await loginUseCase(credentials);
-      if (success) {
-        status.value = LoginStatus.success;
-        message.value = 'Login successful.';
-        Get.snackbar(
-          'Success',
-          'Login completed successfully.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.shade600,
-          colorText: Colors.white,
-        );
-      } else {
-        status.value = LoginStatus.failure;
-        message.value = 'Invalid email or password.';
-      }
-    } catch (_) {
-      status.value = LoginStatus.failure;
-      message.value = 'Unable to login. Please try again.';
-    }
+    // Navigate to attendance scanner after successful login
+    await Future.delayed(
+      const Duration(seconds: 1),
+    ); // Brief delay for user feedback
+    Get.offAll(() => const AttendanceScannerPage(), binding: ScannerBinding());
   }
 
   @override
